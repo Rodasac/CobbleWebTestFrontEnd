@@ -35,7 +35,11 @@ export default function ProfilePage() {
   }, [token, serverUrl]);
 
   if (!token) {
-    return router.push('/login');
+    router.push('/login');
+  }
+
+  if (!profile) {
+    return <main>Loading...</main>;
   }
 
   return (
