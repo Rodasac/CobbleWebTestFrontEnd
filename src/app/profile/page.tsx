@@ -22,6 +22,7 @@ export default function ProfilePage() {
       url: string;
     }[];
   } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${serverUrl}/api/users/me`, {
@@ -31,7 +32,10 @@ export default function ProfilePage() {
     })
       .then((response) => response.json())
       .then((data) => setProfile(data))
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        setError('An error occurred trying to fetch the profile data');
+        console.error(error);
+      });
   }, [token, serverUrl]);
 
   if (!token) {
@@ -59,6 +63,7 @@ export default function ProfilePage() {
       <button className="text-blue-500" onClick={() => dispatch(logout())}>
         Logout
       </button>
+      {error && <p className="text-red-500">{error}</p>}
     </main>
   );
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import { useAppSelector } from '@/store/hooks';
-import { isLoggedIn } from '@/store/loginSlice';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useAppSelector } from '@/store/hooks';
+import { isLoggedIn } from '@/store/loginSlice';
 
 interface RegisterFormInputs {
   firstName: string;
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL ?? '';
   const router = useRouter();
   const userIsLoggedIn = useAppSelector(isLoggedIn);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -64,6 +66,10 @@ export default function RegisterPage() {
       if (response.ok) {
         router.push('/login');
       } else {
+        if (response.status === 400) {
+          const json = await response.json();
+          setError(json.error);
+        }
         console.error(response.statusText);
       }
     } catch (error) {
@@ -157,7 +163,9 @@ export default function RegisterPage() {
           />
         </label>
         {errors.photos && (
-          <span className="text-red-400">{errors.photos.message}</span>
+          <span className="text-red-400">
+            {errors.photos.message || 'At least 4 photos are required'}
+          </span>
         )}
         <button
           className="p-2 bg-blue-500 text-white rounded"
@@ -170,6 +178,7 @@ export default function RegisterPage() {
       <a href="/login" className="text-blue-500">
         Go to login page
       </a>
+      {error && <p className="text-red-500">{error}</p>}
     </main>
   );
 }

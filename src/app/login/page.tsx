@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { isLoggedIn, login } from '@/store/loginSlice';
 import { useRouter } from 'next/navigation';
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const userIsLoggedIn = useAppSelector(isLoggedIn);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -37,10 +39,13 @@ export default function LoginPage() {
 
         dispatch(login(token));
       } else {
+        if (response.status === 401) {
+          setError('Invalid username or password');
+        }
         console.error(response.statusText);
       }
     } catch (error) {
-      console.error(error);
+      setError('An error occurred trying to log in');
     }
   };
 
@@ -78,6 +83,7 @@ export default function LoginPage() {
       <a href="/register" className="text-blue-500">
         Go to register page
       </a>
+      {error && <p className="text-red-500">{error}</p>}
     </main>
   );
 }
